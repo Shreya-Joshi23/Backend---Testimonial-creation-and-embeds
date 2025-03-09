@@ -15,7 +15,7 @@ export async function submitTestimonial(
     console.log(parsedData);
     if (!parsedData.success) {
       res.status(400).json({
-        message: parsedData.error.issues[0].message,
+        message: parsedData.error.issues[0],
       });
       return;
     }
@@ -30,17 +30,19 @@ export async function submitTestimonial(
       });
     }
 
+      console.log(req.file)
     const testimonial = await db.testimonials.create({
       // @ts-ignore
       data: {
         name: parsedData.data.name,
         spaceId: space?.id,
-        rating: parsedData.data.rating,
+        rating: Number(parsedData.data.rating),
         email: parsedData.data.email,
         photo: photourl,
         reviewType: parsedData.data.reviewType,
         reviewText: parsedData.data.reviewText,
-        videoUrl: parsedData.data.videourl,
+        //video file will be uploaded to cloudinary and added  as file in request object
+        videoUrl: req.file?.path
       },
     });
 

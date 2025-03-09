@@ -18,6 +18,7 @@ const ReviewSchema_1 = require("../../validations/ReviewSchema");
 const db_1 = __importDefault(require("../../db"));
 function submitTestimonial(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         // http://localhost:3000/attendance-managemnet-system
         const slug = req.params.slug;
         const { photourl } = req.body;
@@ -26,7 +27,7 @@ function submitTestimonial(req, res, next) {
             console.log(parsedData);
             if (!parsedData.success) {
                 res.status(400).json({
-                    message: parsedData.error.issues[0].message,
+                    message: parsedData.error.issues[0],
                 });
                 return;
             }
@@ -39,17 +40,19 @@ function submitTestimonial(req, res, next) {
                     message: "Space not found",
                 });
             }
+            console.log(req.file);
             const testimonial = yield db_1.default.testimonials.create({
                 // @ts-ignore
                 data: {
                     name: parsedData.data.name,
                     spaceId: space === null || space === void 0 ? void 0 : space.id,
-                    rating: parsedData.data.rating,
+                    rating: Number(parsedData.data.rating),
                     email: parsedData.data.email,
                     photo: photourl,
                     reviewType: parsedData.data.reviewType,
                     reviewText: parsedData.data.reviewText,
-                    videoUrl: parsedData.data.videourl,
+                    //video file will be uploaded to cloudinary and added  as file in request object
+                    videoUrl: (_a = req.file) === null || _a === void 0 ? void 0 : _a.path
                 },
             });
             res.status(200).json({

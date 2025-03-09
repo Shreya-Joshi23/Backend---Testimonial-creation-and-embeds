@@ -24,34 +24,30 @@ model Spaces {
   id           String         @id @default(uuid())
   userId       String
   title        String         @unique
-  slug         String?         @unique
-  description  String?
   createdAt    DateTime       @default(now())
+  description  String?
+  slug         String?        @unique
   user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   Testimonials Testimonials[]
 }
 
-enum ReviewType{
+model Testimonials {
+  id                String     @id @default(uuid())
+  spaceId           String
+  createdAt         DateTime   @default(now())
+  favoritedByUserId String?
+  email             String
+  name              String
+  photo             String?
+  reviewText        String?
+  reviewType        ReviewType
+  videoUrl          String?
+  rating            Int?
+  favoritedBy       User?      @relation("UserFavourites", fields: [favoritedByUserId], references: [id])
+  space             Spaces     @relation(fields: [spaceId], references: [id])
+}
+
+enum ReviewType {
   TEXT
   VIDEO
 }
-
-model Testimonials {
-  id                String   @id @default(uuid())
-  spaceId           String
-  name              String
-  email             String
-  photo             String?
-  rating            Int?
-  reviewType        ReviewType
-  reviewText        String?
-  videoUrl          String?
-  createdAt         DateTime @default(now())
-  favoritedByUserId String?
-  favoritedBy       User?    @relation("UserFavourites", fields: [favoritedByUserId], references: [id])
-  space             Spaces   @relation(fields: [spaceId], references: [id])
-}
-
-// review can be of type text or video
-// it will always contain email,name,photo,review which can be of type video or text of user giving review 
-// the user submitting the review need not to be in User model

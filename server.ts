@@ -2,6 +2,7 @@ import express from "express"
 import authRouter from "./routes/authRoutes";
 import cors from "cors"
 import spaceRouter from "./routes/spaceRoutes";
+import reviewRouter from "./routes/testimonialRoutes";
 
 const app=express();
 app.use(express.json())
@@ -22,6 +23,7 @@ app.use(
 //middlewares
 app.use("/api/v1/auth",authRouter)
 app.use("/api/v1/space",spaceRouter)
+app.use("/api/v1/review",reviewRouter)
 
 app.listen(port,()=>{
     console.log(`Listening to port ${port}`)
