@@ -17,7 +17,7 @@ model User {
   account_active        Boolean        @default(true)
   otp_expires_at        DateTime?
   Spaces                Spaces[]
-  favouriteTestimonials Testimonials[] @relation("UserFavourites")
+  // favouriteTestimonials Testimonials[] @relation("UserFavourites")
 }
 
 model Spaces {
@@ -35,7 +35,10 @@ model Testimonials {
   id                String     @id @default(uuid())
   spaceId           String
   createdAt         DateTime   @default(now())
-  favoritedByUserId String?
+  //store a boolean variable if this particular testimonial is favourite
+  //since this testimonial can be liked by only that user who created the space for the testimonial
+  isfavourite       Boolean     @default(false)
+  // favoritedByUserId String?
   email             String
   name              String
   photo             String?
@@ -43,7 +46,7 @@ model Testimonials {
   reviewType        ReviewType
   videoUrl          String?
   rating            Int?
-  favoritedBy       User?      @relation("UserFavourites", fields: [favoritedByUserId], references: [id])
+  // favoritedBy       User?      @relation("UserFavourites", fields: [favoritedByUserId], references: [id])
   space             Spaces     @relation(fields: [spaceId], references: [id])
 }
 
