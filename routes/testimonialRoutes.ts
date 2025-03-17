@@ -1,6 +1,7 @@
 import express from "express"
-import { getTestimonials, submitTestimonial } from "../controllers/Testimonial/Testimonial"
+import { addtofavourite, getTestimonials, getfavourites, submitTestimonial } from "../controllers/Testimonial/Testimonial"
 import { uploadmiddleware } from "../middlewares/uploadmiddleware"
+import { authmiddleware } from "../middlewares/authmiddleware"
 
 const reviewRouter=express.Router()
 
@@ -9,6 +10,11 @@ const reviewRouter=express.Router()
 reviewRouter.post('/:slug/submit',uploadmiddleware,submitTestimonial)
 
 //get video review and text reviews
-reviewRouter.get('/:slug',getTestimonials)
+reviewRouter.get('/:slug',authmiddleware,getTestimonials)
 
+//mark the testimonial as favourite
+reviewRouter.patch('/:id/addtofavourite',authmiddleware,addtofavourite)
+
+//get favorite testimonials i.e get testimonials added to wall of love
+reviewRouter.get('/:id/favourites',authmiddleware,getfavourites)
 export default reviewRouter
