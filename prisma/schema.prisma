@@ -8,16 +8,15 @@ datasource db {
 }
 
 model User {
-  id                    String         @id @default(uuid())
-  name                  String
-  email                 String         @unique
-  password              String
-  otp                   String?
-  email_verified        Boolean        @default(false)
-  account_active        Boolean        @default(true)
-  otp_expires_at        DateTime?
-  Spaces                Spaces[]
-  // favouriteTestimonials Testimonials[] @relation("UserFavourites")
+  id             String    @id @default(uuid())
+  name           String
+  email          String    @unique
+  password       String
+  otp            String?
+  email_verified Boolean   @default(false)
+  account_active Boolean   @default(true)
+  otp_expires_at DateTime?
+  Spaces         Spaces[]
 }
 
 model Spaces {
@@ -32,22 +31,18 @@ model Spaces {
 }
 
 model Testimonials {
-  id                String     @id @default(uuid())
-  spaceId           String
-  createdAt         DateTime   @default(now())
-  //store a boolean variable if this particular testimonial is favourite
-  //since this testimonial can be liked by only that user who created the space for the testimonial
-  isfavourite       Boolean     @default(false)
-  // favoritedByUserId String?
-  email             String
-  name              String
-  photo             String?
-  reviewText        String?
-  reviewType        ReviewType
-  videoUrl          String?
-  rating            Int?
-  // favoritedBy       User?      @relation("UserFavourites", fields: [favoritedByUserId], references: [id])
-  space             Spaces     @relation(fields: [spaceId], references: [id])
+  id          String     @id @default(uuid())
+  spaceId     String
+  createdAt   DateTime   @default(now())
+  email       String
+  name        String
+  photo       String?
+  reviewText  String?
+  reviewType  ReviewType
+  videoUrl    String?
+  rating      Int?
+  isfavourite Boolean    @default(false)
+  space       Spaces     @relation(fields: [spaceId], references: [id])
 }
 
 enum ReviewType {

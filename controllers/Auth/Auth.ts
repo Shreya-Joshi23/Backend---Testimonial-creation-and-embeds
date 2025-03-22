@@ -4,7 +4,8 @@ import { Request, Response } from "express";
 import { SigninSchema, SignupSchema } from "../../validations/Signschema";
 import db from "../../db";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
+import { NewRequest } from "../../interfaces/requestinterface";
 
 export async function signupcontroller(req: Request, res: Response) {
   const { name, email, password } = req.body;
@@ -29,16 +30,21 @@ export async function signupcontroller(req: Request, res: Response) {
         password: hashedpassword,
       },
     });
+    const jwtsecret = process.env.JWT_SECRET as string;
+    const token = jwt.sign({ id: user?.id }, jwtsecret, { expiresIn: "7d" });
     res.status(200).json({
-      message:"Registered successfully",
-      user
+      message: "Registered successfully",
+      token,
+      user,
     });
   } catch (error: any) {
     if (error.code === "P2002") {
       res.status(400).json({ message: "Email already exists" });
       return;
     }
-    res.status(400).json({ message: "Internal server error", error:error.message });
+    res
+      .status(400)
+      .json({ message: "Internal server error", error: error.message });
   }
 }
 
@@ -46,7 +52,7 @@ export async function signincontroller(req: Request, res: Response) {
   const { email, password } = req.body;
   const parsedData = SigninSchema.safeParse(req.body);
   if (!parsedData.success) {
-     res.status(400).json({
+    res.status(400).json({
       message: parsedData.error.issues[0].message,
     });
     return;
@@ -59,37 +65,66 @@ export async function signincontroller(req: Request, res: Response) {
         email: parsedData.data.email,
       },
     });
-    if(!user){
-        res.status(400).json({
-            message:"Create an account first"
-        })
-        return;
+    if (!user) {
+      res.status(400).json({
+        message: "Create an account first",
+      });
+      return;
     }
     console.log(user);
-    if(!user?.email_verified){
-        res.status(400).json({
-            message:"Verify your email first"
-        })
-        return;
+    if (!user?.email_verified) {
+      res.status(400).json({
+        message: "Verify your email first",
+      });
+      return;
     }
-    const ispasswordCorrect=await bcrypt.compare(parsedData.data.password,user?.password as string)
-    if(!ispasswordCorrect){
-        res.status(400).json({
-            message:"Incorrect credentials"
-        })
-        return;
+    const ispasswordCorrect = await bcrypt.compare(
+      parsedData.data.password,
+      user?.password as string
+    );
+    if (!ispasswordCorrect) {
+      res.status(400).json({
+        message: "Incorrect credentials",
+      });
+      return;
     }
-    const jwtsecret=process.env.JWT_SECRET as string
-    const token=jwt.sign({id:user?.id},jwtsecret,{expiresIn:"7d"});
+    const jwtsecret = process.env.JWT_SECRET as string;
+    const token = jwt.sign({ id: user?.id }, jwtsecret, { expiresIn: "7d" });
     res.status(200).json({
-        message:"signed in successfully",
-        token
-    })
+      message: "Signed in successfully",
+      token,
+      user,
+    });
     return;
+  } catch (error: any) {
+    res.status(400).json({
+      message: "Internal server error",
+      error: error?.message,
+    });
+  }
+}
+
+export async function getMe(req: NewRequest, res: Response) {
+  if (!req.userId) {
+    res.status(400).json({
+      message: "User not authorised",
+    });
+    return;
+  }
+  try {
+    const user = await prisma?.user.findFirst({
+      where: {
+        id: req.userId,
+      },
+    });
+    res.status(200).json({
+      message: "User authorised",
+      user,
+    });
   } catch (error:any) {
-        res.status(400).json({
-            message:"Internal server error",
-            error:error?.message
-        })
+    res.status(400).json({
+      message: "Internal server error",
+      error: error?.message,
+    });
   }
 }
