@@ -3,13 +3,14 @@ import authRouter from "./routes/authRoutes";
 import cors from "cors"
 import spaceRouter from "./routes/spaceRoutes";
 import reviewRouter from "./routes/testimonialRoutes";
+import cookieParser from "cookie-parser";
 
 const app=express();
 app.use(express.json())
 
 const port=process.env.PORT || 5000
 
-const allowedOrigins = ["https://somedomain.vercel.app", "http://localhost:5173"];
+const allowedOrigins = ["http://localhost:5173"];
 
 app.use(
   cors({
@@ -20,6 +21,7 @@ app.use(
   })
 );
 
+app.use(cookieParser());
 //middlewares
 app.use("/api/v1/auth",authRouter)
 app.use("/api/v1/space",spaceRouter)

@@ -3,18 +3,15 @@ import jwt, { JwtPayload } from "jsonwebtoken"
 import { NewRequest } from "../interfaces/requestinterface";
 
 export async function authmiddleware(req:NewRequest,res:Response,next:NextFunction){
-    const authHeader=req.headers.authorization;
-    if(!authHeader || !authHeader.startsWith('Bearer')){
+    const token=req.cookies?.access_token;
+    console.log(token)
+    console.log("Token",req.headers?.cookie?.substring(6))
+    console.log("Cookie token",req.cookies.token)
+    if(!token ){
         res.status(400).json({
             message:"Invalid authentication (Token not found)"
         })
         return;
-    }
-    const token=authHeader?.split(' ')[1];
-    if(!token){
-        res.status(400).json({
-            message:"Token undefined"
-        })
     }
     try{
         console.log("Token: ",token)
