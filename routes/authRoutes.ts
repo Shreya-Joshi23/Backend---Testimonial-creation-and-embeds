@@ -1,9 +1,9 @@
-import express from "express"
+import express, { Router } from "express"
 import {signupcontroller,signincontroller, logoutuser, checkToken} from "../controllers/Auth/Auth"
 import { generateotp, verifyuser } from "../controllers/Auth/AccountVerification";
 import updatepassword from "../controllers/Auth/ForgetPassword";
 
-const authRouter=express.Router();
+const authRouter=Router();
 
 authRouter.post("/signup",signupcontroller)
 authRouter.post("/signin",signincontroller)

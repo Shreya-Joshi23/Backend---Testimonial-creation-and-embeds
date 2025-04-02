@@ -2,10 +2,12 @@ import { NextFunction, Response } from "express";
 import { NewRequest } from "../../interfaces/requestinterface";
 import db from "../../db"
 import slugify from "slugify";
+import { string } from "zod";
 
 export async function addspace(req:NewRequest,res:Response,next:NextFunction){
-    const {title,description}:{
+    const {name,title,description}:{
         title:string,
+        name:string
         description:string
     }=req.body;
     try{
@@ -17,13 +19,18 @@ export async function addspace(req:NewRequest,res:Response,next:NextFunction){
             })
             return;
         }
+        console.log("name",name)
+        console.log("title",title)
+        console.log("description",description)
+        console.log("File path",req.file?.path)
         const space=await db?.spaces.create({
             data:{
                 userId,
                 title,
-                // @ts-ignore
                 description,
-                slug:slugify(title,{lower:true,strict:true})
+                // @ts-ignore
+                logourl:req.file?.path,
+                slug:slugify(name,{lower:true,strict:true})
             },
             omit:{
                 userId:true
@@ -36,7 +43,7 @@ export async function addspace(req:NewRequest,res:Response,next:NextFunction){
     }catch(error:any){
         console.log(error.message)
         res.status(400).json({
-            message:"Internal server error"
+            message:error.message
         })
     }
 }

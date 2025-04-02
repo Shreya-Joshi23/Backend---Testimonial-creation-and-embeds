@@ -24,8 +24,9 @@ model Spaces {
   userId       String
   title        String         @unique
   createdAt    DateTime       @default(now())
-  description  String?
   slug         String?        @unique
+  description  String?
+  logourl      String?        @default("")
   user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   Testimonials Testimonials[]
 }
