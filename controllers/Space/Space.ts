@@ -2,7 +2,6 @@ import { NextFunction, Response } from "express";
 import { NewRequest } from "../../interfaces/requestinterface";
 import db from "../../db"
 import slugify from "slugify";
-import { string } from "zod";
 
 export async function addspace(req:NewRequest,res:Response,next:NextFunction){
     const {name,title,description}:{
