@@ -73,6 +73,7 @@ export async function getuserspaces(req:NewRequest,res:Response){
 export async function updatespace(req:NewRequest,res:Response){
     const spaceId=req.params.id
     const {title,description}=req.body
+    console.log("File path",req.file?.path)
     try{
         const updatedspace=await db?.spaces.update({
             where:{
@@ -81,6 +82,7 @@ export async function updatespace(req:NewRequest,res:Response){
             data:{
                 title,
                 description,
+                logourl:req.file?.path,
                 slug:slugify(title,{lower:true,strict:true})
             },
             omit:{
@@ -118,3 +120,23 @@ export async function deletespace(req:NewRequest,res:Response){
     }
 }
 
+export async function getspaceinfo(req:NewRequest,res:Response){
+    const {slug}=req.params
+    try{
+        // find space with this particular slug
+        const space=await db.spaces.findFirst({
+            where:{
+                slug
+            }
+        })
+        res.status(200).json({
+            message:"Space fetched sccessfully",
+            space
+        })
+    }catch(error:any){
+        console.log(error.message)
+        res.status(400).json({
+            message:"Internal server error"
+        })
+    }
+}

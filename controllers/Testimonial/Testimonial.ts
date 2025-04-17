@@ -49,7 +49,6 @@ export async function submitTestimonial(
 
     res.status(200).json({
       message: "Review submitted successfully",
-      testimonial,
     });
   } catch (error: any) {
     console.log(error.message);
