@@ -12,8 +12,8 @@ export async function submitTestimonial(
   const slug = req.params.slug;
   const { photourl } = req.body;
   try {
-    const parsedData = ReviewSchema.safeParse(req.body);
-    console.log(parsedData);
+    const parsedData = ReviewSchema.safeParse({...req.body,videoUrl:req.file?.path});
+    console.log("Parseddata",parsedData);
     if (!parsedData.success) {
       res.status(400).json({
         message: parsedData.error.issues[0],
@@ -31,7 +31,7 @@ export async function submitTestimonial(
       });
     }
 
-    console.log(req.file);
+    console.log("File",req.file);
     const testimonial = await db.testimonials.create({
       // @ts-ignore
       data: {
@@ -49,6 +49,7 @@ export async function submitTestimonial(
 
     res.status(200).json({
       message: "Review submitted successfully",
+      testimonial
     });
   } catch (error: any) {
     console.log(error.message);
