@@ -4,11 +4,10 @@ export const ReviewSchema=z.object({
     email:z.string().email({message:"Enter correct email format"}),
     name:z.string().min(1,{message:"Name field cannot be empty"}).max(30,{message:"Don't mess up with your name"}),
     rating:z.string(),
-    //if reviewtype is text then check if reviewText isn't empty
-    //if reviewType is video then check if videourl isn't empty
-    //use conditional validation in zod using refine
     reviewType:z.enum(["TEXT","VIDEO"],{message:"Invalid reviewType"}),
     reviewText:z.string().optional(),
+    photo:z.string().url({message:"Invalid photo url"}).optional(),
+    reviewFile:z.string().url({message:"Invalid text review image"}).optional(),
     videoUrl:z.string().url({message:"Invalid video url"}).optional()
 })
 .refine((data)=>{

@@ -26,4 +26,8 @@ const storage = new CloudinaryStorage({
 export const uploadmiddleware = multer({
   storage,
   // limits:{fileSize:50*1024*1024}
-}).single("file");
+}).fields([
+  {name:'textreview',maxCount:1},
+  {name:'photo',maxCount:1},
+  {name:'videoreview',maxCount:1}
+])

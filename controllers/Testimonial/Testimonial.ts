@@ -10,17 +10,29 @@ export async function submitTestimonial(
 ) {
   // http://localhost:3000/attendance-managemnet-system
   const slug = req.params.slug;
-  const { photourl } = req.body;
+  const {reviewType}=req.body
   try {
-    const parsedData = ReviewSchema.safeParse({...req.body,videoUrl:req.file?.path});
-    console.log("Parseddata",parsedData);
+    const photofile = (req.files as any)?.["photo"]?.[0];
+    console.log("photo", photofile);
+
+    const textreview = (req.files as any)?.["textreview"]?.[0];
+    console.log("File", textreview);
+
+    const videoreview=(req.files as any)?.["videoreview"]?.[0];
+    const parsedData = ReviewSchema.safeParse({
+      ...req.body,
+      reviewFile: textreview?.path,
+      videoUrl: videoreview?.path,
+      photo: photofile?.path,
+    });
+    console.log("Parseddata", parsedData);
     if (!parsedData.success) {
       res.status(400).json({
         message: parsedData.error.issues[0],
       });
       return;
     }
-    //find the space id from testimonial slug given
+    // find the space id from testimonial slug given
     const space = await db.spaces.findUnique({
       where: { slug },
     });
@@ -31,7 +43,6 @@ export async function submitTestimonial(
       });
     }
 
-    console.log("File",req.file);
     const testimonial = await db.testimonials.create({
       // @ts-ignore
       data: {
@@ -39,17 +50,19 @@ export async function submitTestimonial(
         spaceId: space?.id,
         rating: Number(parsedData.data.rating),
         email: parsedData.data.email,
-        photo: photourl,
         reviewType: parsedData.data.reviewType,
+        // if case of text review
         reviewText: parsedData.data.reviewText,
         //video file will be uploaded to cloudinary and added  as file in request object
-        videoUrl: req.file?.path,
+        photo: photofile?.path,
+        reviewFile: textreview?.path || null,
+        videoUrl: videoreview?.path || null,
       },
     });
 
     res.status(200).json({
       message: "Review submitted successfully",
-      testimonial
+      testimonial,
     });
   } catch (error: any) {
     console.log(error.message);
