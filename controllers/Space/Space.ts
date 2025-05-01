@@ -21,14 +21,16 @@ export async function addspace(req:NewRequest,res:Response,next:NextFunction){
         console.log("name",name)
         console.log("title",title)
         console.log("description",description)
-        console.log("File path",req.file?.path)
+
+        const logourl= (req.files as any)?.["spacelogo"]?.[0]
+
+        console.log("File path",logourl?.path)
         const space=await db?.spaces.create({
             data:{
                 userId,
                 title,
                 description,
-                // @ts-ignore
-                logourl:req.file?.path,
+                logourl:logourl?.path,
                 slug:slugify(name,{lower:true,strict:true})
             },
             omit:{
@@ -73,7 +75,8 @@ export async function getuserspaces(req:NewRequest,res:Response){
 export async function updatespace(req:NewRequest,res:Response){
     const spaceId=req.params.id
     const {title,description}=req.body
-    console.log("File path",req.file?.path)
+
+    const spacelogo=(req.files as any)?.["spacelogo"]?.[0]
     try{
         const updatedspace=await db?.spaces.update({
             where:{
@@ -82,7 +85,7 @@ export async function updatespace(req:NewRequest,res:Response){
             data:{
                 title,
                 description,
-                logourl:req.file?.path,
+                logourl:spacelogo?.path,
                 slug:slugify(title,{lower:true,strict:true})
             },
             omit:{

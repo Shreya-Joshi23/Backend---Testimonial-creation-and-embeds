@@ -37,13 +37,13 @@ model Testimonials {
   createdAt   DateTime   @default(now())
   email       String
   name        String
+  photo       String?
   reviewText  String?
   reviewType  ReviewType
-  reviewFile  String?
-  photo       String?
   videoUrl    String?
   rating      Int?
   isfavourite Boolean    @default(false)
+  reviewFile  String?
   space       Spaces     @relation(fields: [spaceId], references: [id])
 }
 

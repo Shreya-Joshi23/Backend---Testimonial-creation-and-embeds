@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { ReviewSchema } from "../../validations/ReviewSchema";
 import db from "../../db";
 import { NewRequest } from "../../interfaces/requestinterface";
+import { mailSender } from "../../utils/Sendotp";
 
 export async function submitTestimonial(
   req: Request,
@@ -10,7 +11,6 @@ export async function submitTestimonial(
 ) {
   // http://localhost:3000/attendance-managemnet-system
   const slug = req.params.slug;
-  const {reviewType}=req.body
   try {
     const photofile = (req.files as any)?.["photo"]?.[0];
     console.log("photo", photofile);
@@ -60,6 +60,8 @@ export async function submitTestimonial(
       },
     });
 
+    // send mail for testimonial both got the testimonial and made a testimonial
+    // const mailResponse=await Sendmail(parsedData.data)
     res.status(200).json({
       message: "Review submitted successfully",
       testimonial,
@@ -95,7 +97,7 @@ export async function getTestimonials(
       },
       orderBy: {
         createdAt: "asc",
-      },
+      }
     });
     res.status(200).json({
       message: "Reviews fetched successfully",
@@ -143,7 +145,8 @@ export async function addtofavourite(req: NewRequest, res: Response) {
       },
     });
     res.status(200).json({
-      message: "Added to favourites",
+      message: `${testimonial.isfavourite?"Removed from":"Added to"} favourites`,
+      isfavourite: updatedtestimonial?.isfavourite
     });
   } catch (error: any) {
     console.log(error.message);

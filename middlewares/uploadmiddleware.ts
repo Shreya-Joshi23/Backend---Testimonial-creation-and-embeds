@@ -29,5 +29,6 @@ export const uploadmiddleware = multer({
 }).fields([
   {name:'textreview',maxCount:1},
   {name:'photo',maxCount:1},
-  {name:'videoreview',maxCount:1}
+  {name:'videoreview',maxCount:1},
+  {name:'spacelogo',maxCount:1}
 ])
