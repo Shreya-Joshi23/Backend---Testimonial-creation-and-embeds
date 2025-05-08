@@ -4,6 +4,7 @@ import cors from "cors"
 import spaceRouter from "./routes/spaceRoutes";
 import reviewRouter from "./routes/testimonialRoutes";
 import cookieParser from "cookie-parser";
+import path from "path";
 
 const app=express();
 app.use(express.json())
@@ -12,6 +13,8 @@ const port=process.env.PORT || 5000
 
 const allowedOrigins = ["http://localhost:5173"];
 
+app.use(express.static(path.join(__dirname, 'public','static')));
+console.log("Serving from",path.join(__dirname, 'public','static'))
 app.use(
   cors({
     credentials: true,

@@ -18,7 +18,7 @@ export async function submitTestimonial(
     const textreview = (req.files as any)?.["textreview"]?.[0];
     console.log("File", textreview);
 
-    const videoreview=(req.files as any)?.["videoreview"]?.[0];
+    const videoreview = (req.files as any)?.["videoreview"]?.[0];
     const parsedData = ReviewSchema.safeParse({
       ...req.body,
       reviewFile: textreview?.path,
@@ -97,7 +97,7 @@ export async function getTestimonials(
       },
       orderBy: {
         createdAt: "asc",
-      }
+      },
     });
     res.status(200).json({
       message: "Reviews fetched successfully",
@@ -145,8 +145,10 @@ export async function addtofavourite(req: NewRequest, res: Response) {
       },
     });
     res.status(200).json({
-      message: `${testimonial.isfavourite?"Removed from":"Added to"} favourites`,
-      isfavourite: updatedtestimonial?.isfavourite
+      message: `${
+        testimonial.isfavourite ? "Removed from" : "Added to"
+      } favourites`,
+      isfavourite: updatedtestimonial?.isfavourite,
     });
   } catch (error: any) {
     console.log(error.message);
@@ -158,13 +160,15 @@ export async function addtofavourite(req: NewRequest, res: Response) {
 
 // get favourites for particular space
 export async function getfavourites(req: NewRequest, res: Response) {
-  const spaceId = req.params.id;
+  const slug = req.params.slug;
 
   try {
     const favourites = await prisma?.testimonials.findMany({
       where: {
         isfavourite: true,
-        spaceId: spaceId,
+        space: {
+          slug: slug,
+        },
       },
     });
     if (!favourites) {
@@ -173,10 +177,26 @@ export async function getfavourites(req: NewRequest, res: Response) {
       });
       return;
     }
-    res.status(200).json({
-      message: "Favourites fetched successfully",
-      favourites,
-    });
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Embed Testimonials</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <style>
+            body { margin: 0; background: #f9f9f9; }
+          </style>
+        </head>
+        <body>
+          <script>
+            window.__FAVOURITES__ = ${JSON.stringify(favourites)};
+          </script>
+          <div id="root"></div>
+          <script src="/static/embed.bundle.js"></script>
+          <script src="https://cdn.jsdelivr.net/npm/iframe-resizer/js/iframeResizer.contentWindow.min.js"></script>
+        </body>
+      </html>
+    `);
   } catch (error: any) {
     console.log(error.message);
     res.status(400).json({

@@ -16,5 +16,5 @@ reviewRouter.get('/:slug',authmiddleware,getTestimonials)
 reviewRouter.patch('/:id/addtofavourite',authmiddleware,addtofavourite)
 
 //get favorite testimonials i.e get testimonials added to wall of love
-reviewRouter.get('/:id/favourites',authmiddleware,getfavourites)
+reviewRouter.get('/embed/:slug',getfavourites)
 export default reviewRouter
