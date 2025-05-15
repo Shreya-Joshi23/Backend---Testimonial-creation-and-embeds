@@ -2,7 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { ReviewSchema } from "../../validations/ReviewSchema";
 import db from "../../db";
 import { NewRequest } from "../../interfaces/requestinterface";
-import { mailSender } from "../../utils/Sendotp";
+import { any, number } from "zod";
+// import { mailSender } from "../../utils/Sendotp";
 
 export async function submitTestimonial(
   req: Request,
@@ -158,9 +159,54 @@ export async function addtofavourite(req: NewRequest, res: Response) {
   }
 }
 
-// get favourites for particular space
+export async function getgraphdata(req: NewRequest, res: Response) {
+  try {
+    console.log("GEt graphic dataa");
+    const testimonials = await prisma?.testimonials.findMany({
+      select: {
+        reviewType: true,
+        space: {
+          select: {
+            title: true,
+          },
+        },
+      },
+    });
+
+    const typeCount = testimonials?.reduce((acc: any, curr) => {
+      const key = curr.reviewType;
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const reviewTypeData = Object.entries(typeCount).map(([type, count]) => ({
+      type,
+      count,
+    }));
+
+    const spacemap = new Map<string, number>();
+    testimonials?.forEach((t) => {
+      const title = t.space.title;
+      spacemap.set(title, (spacemap.get(title) || 0) + 1);
+    });
+
+    const spaceData = Array.from(spacemap.entries()).map(([space, count]) => ({
+      space,
+      testimonialcount: count,
+    }));
+
+    res.json({
+      typeCount: reviewTypeData,
+      spaceData,
+    });
+  } catch (error: any) {
+    console.log("Error in fetching graph data", error.message);
+  }
+}
+
 export async function getfavourites(req: NewRequest, res: Response) {
   const slug = req.params.slug;
+  const layout = req.query.layout || "default";
 
   try {
     const favourites = await prisma?.testimonials.findMany({
@@ -177,30 +223,211 @@ export async function getfavourites(req: NewRequest, res: Response) {
       });
       return;
     }
+    const testimonial = favourites[0];
     res.send(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Embed Testimonials</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <style>
-            body { margin: 0; background: #f9f9f9; }
-          </style>
-        </head>
-        <body>
-          <script>
-            window.__FAVOURITES__ = ${JSON.stringify(favourites)};
-          </script>
-          <div id="root"></div>
-          <script src="/static/embed.bundle.js"></script>
-          <script src="https://cdn.jsdelivr.net/npm/iframe-resizer/js/iframeResizer.contentWindow.min.js"></script>
-        </body>
-      </html>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Embedded Testimonial</title>
+      <style>
+        body {
+          margin: 0;
+          padding: 1rem;
+          font-family: Arial, sans-serif;
+          background-color: #f9f9f9;
+        }
+        .testimonial-container {
+          max-width: 600px;
+          margin: auto;
+          background: white;
+          padding: 1.5rem;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .testimonial-message {
+          font-size: 1.1rem;
+          color: #333;
+          margin-bottom: 1rem;
+        }
+        .testimonial-author {
+          font-size: 0.95rem;
+          font-weight: bold;
+          color: #555;
+          text-align: right;
+        }
+
+        ${
+          layout === "compact"
+            ? `
+          .testimonial-container {
+            padding: 1rem;
+            border-left: 4px solid #3498db;
+          }
+        `
+            : ""
+        }
+      </style>
+    </head>
+    <body>
+      <div class="testimonial-container">
+        <div class="testimonial-message">"${escape(
+          testimonial.reviewType
+        )}"</div>
+        <div class="testimonial-author">- ${escape(testimonial.name)}</div>
+      </div>
+    </body>
+    </html>
     `);
   } catch (error: any) {
     console.log(error.message);
     res.status(400).json({
       message: "Internal server error",
+    });
+  }
+}
+
+export async function gettestimonial(req: NewRequest, res: Response) {
+  try {
+    const id = req.params.id;
+    const testimonial = await db.testimonials.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!testimonial) {
+      res.status(400).json({
+        message: "Testimonial not found",
+      });
+      return;
+    }
+    res.status(200).json({
+      message: "Testimonial fetched successfully",
+      testimonial,
+    });
+  } catch (error: any) {
+    console.log("Error in fetching testimonial", error.message);
+  }
+}
+
+export async function embedsingletestimonial(req: NewRequest, res: Response) {
+  const id = req.params.id;
+  try {
+    const testimonial = await db.testimonials.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!testimonial) {
+      res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Embedded Testimonial</title>
+        <style>
+          body {
+            margin: 0;
+            padding: 1rem;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+          }
+          .testimonial-container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          }
+          .testimonial-message {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 1rem;
+          }
+          .testimonial-author {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #555;
+            text-align: right;
+          }
+        </style>
+        </head>
+        <body>
+          
+          <div class="testimonial-container">
+            <div class="testimonial-message">No testimonial found</div>
+            <div class="testimonial-author">- Anonymous</div>
+          </div>
+        </body>
+        </html>
+            `);
+      return;
+    }
+    res.send(`
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Embedded Testimonial</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 1rem;
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+      }
+      .testimonial-container {
+        max-width: 600px;
+        margin: auto;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        text-align: center;
+      }
+      .testimonial-message {
+        font-size: 1.1rem;
+        color: #333;
+        margin-bottom: 1rem;
+      }
+      .testimonial-author {
+        font-size: 0.95rem;
+        font-weight: bold;
+        color: #555;
+        margin-top: 0.5rem;
+      }
+      video {
+        width: 100%;
+        max-height: 350px;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="testimonial-container">
+      ${
+        testimonial?.reviewType === "VIDEO" && testimonial.videoUrl
+          ? `<video src="${testimonial.videoUrl}" controls></video>`
+          : `<div class="testimonial-message">${
+              testimonial.reviewText || "No text review provided"
+            }</div>`
+      }
+      <div class="testimonial-author">- ${testimonial.name}</div>
+    </div>
+  </body>
+  </html>
+`);
+  } catch (error: any) {
+    console.log(error.message);
+    res.status(400).json({
+      message: error.message,
     });
   }
 }
