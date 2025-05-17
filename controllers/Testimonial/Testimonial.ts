@@ -2,8 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import { ReviewSchema } from "../../validations/ReviewSchema";
 import db from "../../db";
 import { NewRequest } from "../../interfaces/requestinterface";
-import { any, number } from "zod";
-// import { mailSender } from "../../utils/Sendotp";
 
 export async function submitTestimonial(
   req: Request,
@@ -429,5 +427,85 @@ export async function embedsingletestimonial(req: NewRequest, res: Response) {
     res.status(400).json({
       message: error.message,
     });
+  }
+}
+
+export async function embedsingletypetestimonial(
+  req: NewRequest,
+  res: Response
+) {
+  const slug = req.params.slug;
+  const type = req.params.type;
+
+  if (!slug || !type) {
+    return res.status(400).send("<h3>Missing slug or type parameter</h3>");
+  }
+
+  try {
+    const testimonial = await db.testimonials.findFirst({
+      where: {
+        space: {
+          is: { slug },
+        },
+        // @ts-ignore
+        reviewType: type.toUpperCase() || "TEXT",
+      },
+    });
+
+    if (!testimonial) {
+      return res.status(404).send("<h3>Testimonial not found</h3>");
+    }
+
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Testimonial Embed</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          padding: 1rem;
+          background-color: #f9f9f9;
+        }
+        .testimonial {
+          border: 1px solid #ccc;
+          padding: 1rem;
+          border-radius: 8px;
+          background: white;
+          max-width: 600px;
+          margin: auto;
+        }
+        .testimonial-video {
+          width: 320px;
+          height: 180px;
+          display: block;
+          margin: 1rem auto 0;
+          border-radius: 8px;
+          object-fit: cover;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="testimonial">
+        <h2>${testimonial.reviewText || "Testimonial"}</h2>
+        ${
+          testimonial.videoUrl
+            ? `<video src="${testimonial.videoUrl}" class="testimonial-video" controls></video>`
+            : ""
+        }
+        <p>- ${testimonial.name || "Anonymous"}</p>
+      </div>
+    </body>
+    </html>
+  `;
+  
+
+    // res.setHeader("Content-Type", "text/html");
+    res.status(200).send(htmlContent);
+  } catch (error: any) {
+    console.error("Error in fetching testimonial:", error.message);
+    res.status(500).send(`<h3>Internal Server Error</h3><p>${error.message}</p>`);
   }
 }
