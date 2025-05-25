@@ -1,11 +1,10 @@
 import express from "express"
-import { addtofavourite,deleteTestimonial,getTestimonials, getfavourites, getgraphdata, gettestimonial, submitTestimonial } from "../controllers/Testimonial/Testimonial"
+import { addtofavourite,deleteTestimonial,getTestimonials, getgraphdata, gettestimonial, submitTestimonial } from "../controllers/Testimonial/Testimonial"
 import { uploadmiddleware } from "../middlewares/uploadmiddleware"
 import { authmiddleware } from "../middlewares/authmiddleware"
 import { embedsingletestimonial, embedsingletypetestimonial, embedwalloflove } from "../controllers/Testimonial/Embedtestimonial"
 
 const reviewRouter=express.Router()
-
 
 reviewRouter.get('/:slug',authmiddleware,getTestimonials)
 reviewRouter.get('/graph/data',getgraphdata)

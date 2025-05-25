@@ -36,7 +36,7 @@ export async function signupcontroller(req: Request, res: Response) {
       const isProduction=process.env.NODE_ENV === "production"
 
       res.cookie("access_token", token, {
-        domain: isProduction ? '.vercel.app' : 'localhost',
+        domain: isProduction ? 'gimme-feedback.vercel.app' : 'localhost',
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
         secure: true,
@@ -108,7 +108,7 @@ export async function signincontroller(req: Request, res: Response) {
     const isProduction=process.env.NODE_ENV === "production"
 
       res.cookie("access_token", token, {
-        domain: isProduction ? '.vercel.app' : 'localhost',
+        domain: isProduction ? 'gimme-feedback.vercel.app' : 'localhost',
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
         secure: true,
