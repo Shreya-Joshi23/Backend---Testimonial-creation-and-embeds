@@ -11,7 +11,7 @@ app.use(express.json());
 
 const port = process.env.PORT || 5000;
 
-const allowedOrigins = ["http://localhost:5173","http://127.0.0.1:5500"];
+const allowedOrigins = ["https://final-yr-project-z7cb.vercel.app","http://localhost:5173","http://127.0.0.1:5500"];
 
 app.use(express.static('public')); 
 app.use((req, res, next) => {
