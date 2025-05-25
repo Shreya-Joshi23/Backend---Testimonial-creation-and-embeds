@@ -30,6 +30,13 @@ app.use(
   })
 );
 
+app.get("/",(req,res)=>{
+  res.send(`
+    <h1>Welcome to Gimme Feedbacks API</h1>
+    <p>View the <a href="https://your-docs-link.com" target="_blank">API Documentation</a>.</p>
+  `);
+})
+
 app.use(cookieParser());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/space", spaceRouter);
