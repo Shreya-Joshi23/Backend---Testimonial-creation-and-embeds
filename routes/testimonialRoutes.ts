@@ -1,30 +1,45 @@
 import express from "express"
-import { addtofavourite,getTestimonials, getfavourites, getgraphdata, gettestimonial, submitTestimonial } from "../controllers/Testimonial/Testimonial"
+import { addtofavourite,deleteTestimonial,getTestimonials, getfavourites, getgraphdata, gettestimonial, submitTestimonial } from "../controllers/Testimonial/Testimonial"
 import { uploadmiddleware } from "../middlewares/uploadmiddleware"
 import { authmiddleware } from "../middlewares/authmiddleware"
-import { embedsingletestimonial, embedsingletypetestimonial } from "../controllers/Testimonial/Embedtestimonial"
+import { embedsingletestimonial, embedsingletypetestimonial, embedwalloflove } from "../controllers/Testimonial/Embedtestimonial"
 
 const reviewRouter=express.Router()
 
-//store text and video review in testimoinal model
-//use multer as middleware for storing video review to cloudinary
-reviewRouter.post('/:slug/submit',uploadmiddleware,submitTestimonial)
 
-//get video review and text reviews
 reviewRouter.get('/:slug',authmiddleware,getTestimonials)
-
-//mark the testimonial as favourite
-reviewRouter.patch('/:id/addtofavourite',authmiddleware,addtofavourite)
-
 reviewRouter.get('/graph/data',getgraphdata)
-
 reviewRouter.get('/testimonial/:id',gettestimonial)
-
 reviewRouter.get('/embedsingle/:id',embedsingletestimonial)
-
-//get favorite testimonials i.e get testimonials added to wall of love
-reviewRouter.get('/embed/:slug',getfavourites)
-
+// @ts-ignore
+reviewRouter.get('/walloflove/:slug/:layout',embedwalloflove)
 // @ts-ignore
 reviewRouter.get('/embed/:slug/:type',embedsingletypetestimonial)
+
+reviewRouter.post('/:slug/submit',uploadmiddleware,submitTestimonial)
+reviewRouter.patch('/:id/addtofavourite',authmiddleware,addtofavourite)
+
+reviewRouter.delete('/:id',authmiddleware,deleteTestimonial)
+
+reviewRouter.get('/embed/:slug/:layout/embed.js', (req, res) => {
+    const { slug, layout } = req.params;
+  
+    const jsCode = `
+      (function() {
+        var container = document.getElementById('gimme-feedbacks-embed-root');
+        if (!container) return;
+        fetch("${process.env.BACKEND_URL}/review/walloflove/${slug}/${layout}")
+          .then(r => r.text())
+          .then(html => {
+            container.innerHTML = html;
+          });
+      })();
+    `;
+    
+    res.setHeader("Content-Type", "application/javascript");
+    console.log(jsCode)
+    res.send(jsCode);
+  });
+
+  
 export default reviewRouter

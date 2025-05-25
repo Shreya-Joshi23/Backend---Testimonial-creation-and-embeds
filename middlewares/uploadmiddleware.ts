@@ -1,4 +1,3 @@
-import { NextFunction, Request, Response } from "express";
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import multer from "multer";
@@ -25,7 +24,6 @@ const storage = new CloudinaryStorage({
 
 export const uploadmiddleware = multer({
   storage,
-  // limits:{fileSize:50*1024*1024}
 }).fields([
   {name:'textreview',maxCount:1},
   {name:'photo',maxCount:1},

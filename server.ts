@@ -11,9 +11,9 @@ app.use(express.json());
 
 const port = process.env.PORT || 5000;
 
-const allowedOrigins = ["http://localhost:5173"];
+const allowedOrigins = ["http://localhost:5173","http://127.0.0.1:5500"];
 
-app.use("/static", express.static(path.join(__dirname, "public/static")));
+app.use(express.static('public')); 
 app.use((req, res, next) => {
   res.setHeader("X-Frame-Options", "ALLOWALL");
   res.setHeader("Content-Security-Policy", "frame-ancestors *");
@@ -31,7 +31,6 @@ app.use(
 );
 
 app.use(cookieParser());
-//middlewares
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/space", spaceRouter);
 app.use("/api/v1/review", reviewRouter);
