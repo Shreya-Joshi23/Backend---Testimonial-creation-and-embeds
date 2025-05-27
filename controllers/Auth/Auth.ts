@@ -39,7 +39,8 @@ export async function signupcontroller(req: Request, res: Response) {
         domain: isProduction ? 'gimme-feedback.vercel.app' : 'localhost',
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
-        secure: true,
+        secure: isProduction,
+        sameSite: isProduction?'none':'lax'
       });
 
       res.status(200).json({
@@ -111,7 +112,7 @@ export async function signincontroller(req: Request, res: Response) {
         domain: isProduction ? 'gimme-feedback.vercel.app' : 'localhost',
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
-        secure: true,
+        secure: isProduction,
         sameSite: isProduction ? 'none' : 'lax'
       });
 
