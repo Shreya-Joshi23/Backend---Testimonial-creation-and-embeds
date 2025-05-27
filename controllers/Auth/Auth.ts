@@ -112,6 +112,7 @@ export async function signincontroller(req: Request, res: Response) {
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
         secure: true,
+        sameSite: isProduction ? 'none' : 'lax'
       });
 
     res.status(200).json({
