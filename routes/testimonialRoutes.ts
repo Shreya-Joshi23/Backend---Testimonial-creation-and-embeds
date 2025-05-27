@@ -7,7 +7,7 @@ import { embedsingletestimonial, embedsingletypetestimonial, embedwalloflove } f
 const reviewRouter=express.Router()
 
 reviewRouter.get('/:slug',authmiddleware,getTestimonials)
-reviewRouter.get('/graph/data',getgraphdata)
+reviewRouter.get('/graph/data',authmiddleware,getgraphdata)
 reviewRouter.get('/testimonial/:id',gettestimonial)
 reviewRouter.get('/embedsingle/:id',embedsingletestimonial)
 // @ts-ignore
