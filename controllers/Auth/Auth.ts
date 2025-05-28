@@ -33,15 +33,15 @@ export async function signupcontroller(req: Request, res: Response) {
     if (user) {
       const jwtsecret = process.env.JWT_SECRET as string;
       const token = jwt.sign({ id: user?.id }, jwtsecret, { expiresIn: "7d" });
-      const isProduction=process.env.NODE_ENV === "production"
-      console.log("Production:",isProduction)
+      const isProduction = process.env.NODE_ENV === "production";
+      console.log("Production:", isProduction);
 
       res.cookie("access_token", token, {
-        domain: isProduction ? 'gimme-feedback.vercel.app' : 'localhost',
+        domain: isProduction ? "gimme-feedback.vercel.app" : "localhost",
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
         secure: isProduction,
-        sameSite: isProduction?'none':'lax'
+        sameSite: isProduction ? "none" : "lax",
       });
 
       res.status(200).json({
@@ -49,10 +49,10 @@ export async function signupcontroller(req: Request, res: Response) {
         token,
         user,
       });
-    }else{
+    } else {
       res.status(400).json({
-        message:"User not created"
-      })
+        message: "User not created",
+      });
     }
   } catch (error: any) {
     if (error.code === "P2002") {
@@ -107,16 +107,23 @@ export async function signincontroller(req: Request, res: Response) {
     const jwtsecret = process.env.JWT_SECRET as string;
     const token = jwt.sign({ id: user?.id }, jwtsecret, { expiresIn: "7d" });
 
-    const isProduction=process.env.NODE_ENV === "production"
-    console.log("isProduction:",isProduction)
+    const isProduction = process.env.NODE_ENV === "production";
+    console.log("isProduction:", isProduction);
 
-      res.cookie("access_token", token, {
-        domain: isProduction ? 'gimme-feedback.vercel.app' : 'localhost',
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000,
-        secure: isProduction,
-        sameSite: isProduction ? 'none' : 'lax'
-      });
+    // res.cookie("access_token", token, {
+    //   domain: isProduction ? 'gimme-feedback.vercel.app' : 'localhost',
+    //   httpOnly: true,
+    //   maxAge: 24 * 60 * 60 * 1000,
+    //   secure: isProduction,
+    //   sameSite: isProduction ? 'none' : 'lax'
+    // });
+
+    res.cookie("access_token", token, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+      secure: true,
+      sameSite: "none",
+    });
 
     res.status(200).json({
       message: "Signed in successfully",
@@ -132,44 +139,47 @@ export async function signincontroller(req: Request, res: Response) {
   }
 }
 
-export const logoutuser = async (req:Request, res:Response) => {
+export const logoutuser = async (req: Request, res: Response) => {
   try {
     res.cookie("access_token", "", { maxAge: 1 });
     res.status(200).json({ message: "User logged out" });
-  } catch (error:any) {
+  } catch (error: any) {
     res
       .status(400)
       .json({ message: "Error while logging out ", error: error.message });
   }
 };
 
-export const checkToken=async (req:Request,res:Response)=>{
+export const checkToken = async (req: Request, res: Response) => {
   const req_token = req.cookies?.access_token;
-  console.log(req_token)
+  console.log(req_token);
   try {
     if (!req_token) {
-       res.status(400).json({ message: "Please login" });
-       return
+      res.status(400).json({ message: "Please login" });
+      return;
     }
 
-    const payload = jwt.verify(req_token, process.env.JWT_SECRET as string) as JwtPayload;
+    const payload = jwt.verify(
+      req_token,
+      process.env.JWT_SECRET as string
+    ) as JwtPayload;
     if (!payload?.id) {
-       res.status(400).json({ message: "Token not valid" });
-       return
+      res.status(400).json({ message: "Token not valid" });
+      return;
     }
 
     const user = await db.user?.findFirst({ where: { id: payload.id } });
     if (!user) {
-       res.status(400).json({ message: "User not found" });
-       return
+      res.status(400).json({ message: "User not found" });
+      return;
     }
-    
+
     // also check if user email is verified then only set isAuthenticated to true
-    if(!user.email_verified){
+    if (!user.email_verified) {
       res.status(200).json({
-        message:"user authenticated but email not verified.Verify email first"
-      })
-      return
+        message: "user authenticated but email not verified.Verify email first",
+      });
+      return;
     }
 
     res.status(200).json({
@@ -178,7 +188,7 @@ export const checkToken=async (req:Request,res:Response)=>{
     });
   } catch (error: any) {
     console.error("Token verification error:", error.message);
-     res.status(400).json({ message: "Invalid token" ,token:req_token});
-     return
+    res.status(400).json({ message: "Invalid token", token: req_token });
+    return;
   }
-}
+};

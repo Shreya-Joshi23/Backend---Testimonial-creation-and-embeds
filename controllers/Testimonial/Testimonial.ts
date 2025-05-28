@@ -178,8 +178,14 @@ export async function addtofavourite(req: NewRequest, res: Response) {
 
 export async function getgraphdata(req: NewRequest, res: Response) {
   try {
-    console.log("GEt graphic dataa");
+    console.log("Get graphic data");
+    const userId=req.userId
     const testimonials = await prisma?.testimonials.findMany({
+      where:{
+        space:{
+          userId:userId
+        }
+      },
       select: {
         reviewType: true,
         space: {
