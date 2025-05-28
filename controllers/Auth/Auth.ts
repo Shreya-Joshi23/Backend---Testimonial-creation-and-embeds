@@ -34,6 +34,7 @@ export async function signupcontroller(req: Request, res: Response) {
       const jwtsecret = process.env.JWT_SECRET as string;
       const token = jwt.sign({ id: user?.id }, jwtsecret, { expiresIn: "7d" });
       const isProduction=process.env.NODE_ENV === "production"
+      console.log("Production:",isProduction)
 
       res.cookie("access_token", token, {
         domain: isProduction ? 'gimme-feedback.vercel.app' : 'localhost',
@@ -107,6 +108,7 @@ export async function signincontroller(req: Request, res: Response) {
     const token = jwt.sign({ id: user?.id }, jwtsecret, { expiresIn: "7d" });
 
     const isProduction=process.env.NODE_ENV === "production"
+    console.log("isProduction:",isProduction)
 
       res.cookie("access_token", token, {
         domain: isProduction ? 'gimme-feedback.vercel.app' : 'localhost',
