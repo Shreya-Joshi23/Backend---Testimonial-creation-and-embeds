@@ -36,12 +36,12 @@ export async function signupcontroller(req: Request, res: Response) {
       const isProduction = process.env.NODE_ENV === "production";
       console.log("Production:", isProduction);
 
+
       res.cookie("access_token", token, {
-        domain: isProduction ? "gimme-feedback.vercel.app" : "localhost",
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
-        secure: isProduction,
-        sameSite: isProduction ? "none" : "lax",
+        secure: true,
+        sameSite: "none",
       });
 
       res.status(200).json({
@@ -109,14 +109,6 @@ export async function signincontroller(req: Request, res: Response) {
 
     const isProduction = process.env.NODE_ENV === "production";
     console.log("isProduction:", isProduction);
-
-    // res.cookie("access_token", token, {
-    //   domain: isProduction ? 'gimme-feedback.vercel.app' : 'localhost',
-    //   httpOnly: true,
-    //   maxAge: 24 * 60 * 60 * 1000,
-    //   secure: isProduction,
-    //   sameSite: isProduction ? 'none' : 'lax'
-    // });
 
     res.cookie("access_token", token, {
       httpOnly: true,
