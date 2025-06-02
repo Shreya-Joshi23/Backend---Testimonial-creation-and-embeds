@@ -11,7 +11,7 @@ app.use(express.json());
 
 const port = process.env.PORT || 5000;
 
-const allowedOrigins = ["https://gimme-feedback.vercel.app","http://localhost:5173","http://127.0.0.1:5500"];
+const allowedOrigins = ["https://gimme-feedback.vercel.app","http://localhost:5173","http://127.0.0.1:5500","https://testgimmefeed.vercel.app"];
 
 app.use(express.static('public')); 
 app.use((req, res, next) => {
@@ -33,7 +33,7 @@ app.use(
 app.get("/",(req,res)=>{
   res.send(`
     <h1>Welcome to Gimme Feedbacks API</h1>
-    <p>View the <a href="https://your-docs-link.com" target="_blank">API Documentation</a>.</p>
+    <p>View the <a href="https://documenter.getpostman.com/view/29375720/2sAYdhLWkn" target="_blank">API Documentation</a>.</p>
   `);
 })
 
